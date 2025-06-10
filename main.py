@@ -449,7 +449,7 @@ def Calculate_CGS(x1, x2, x3):
   return CGS
 
 
-bot = telebot.TeleBot('8044522836:AAGsgb6d3r4CEGKhQMjD9Lk1wPN7pU-bNGk')
+bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 
 @bot.message_handler(commands=['help', 'start'])
 
