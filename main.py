@@ -454,7 +454,7 @@ bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 @bot.message_handler(commands=['help', 'start'])
 
 def send_welcome(message):
-    msg = bot.reply_to(message, "\n\nHello, I'm the bot \"Ai Medical Assistant\"!")
+    msg = bot.send_message(message.chat.id, "\n\nHello, I'm the bot \"Ai Medical Assistant\"!")
     chat_id = message.chat.id
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
     markup.add('Next')
