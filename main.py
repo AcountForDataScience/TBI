@@ -406,42 +406,42 @@ def recommend_best_treatment(patient_data: dict):
 
   # Тепер ви можете використовувати навчену модель для прогнозування ускладнень для нових пацієнтів
   # Наприклад, для нового пацієнта з такими характеристиками:
-NewPatient = pd.DataFrame({
-   'Initial_GCS': [x1],
-   'Age': [x2],
-   'Hematoma_size_ml': [x3],
-   'Midline_shift_mm': [x4],
-   'Time_to_surgery_h': [x5],
-   'ICP_max_to_surgery': [x6],
-   'Concomitant_traumas': [x7]
-  })
+    NewPatient = pd.DataFrame({
+    'Initial_GCS': [x1],
+    'Age': [x2],
+    'Hematoma_size_ml': [x3],
+    'Midline_shift_mm': [x4],
+    'Time_to_surgery_h': [x5],
+    'ICP_max_to_surgery': [x6],
+    'Concomitant_traumas': [x7]
+    })
 
   #Resume_predicted_proba_lr_Cognitive_Disorders = Resume_predicted_proba_lr_Cognitive_Disorders[-1][1]
 
-NeurologicalOutcomeProbability = model.predict(NewPatient)
-if NeurologicalOutcomeProbability < 1:
-    NeurologicalOutcomeProbabilityAnswer = ': invalidity'
-else:
-    NeurologicalOutcomeProbabilityAnswer = ': significant recovery'
-NeurologicalOutcomeProbabilityPercent = model.predict_proba(NewPatient)
-NeurologicalOutcomeProbabilityPercent = NeurologicalOutcomeProbabilityPercent[-1][1]
-NeurologicalOutcomeProbabilityPercent = NeurologicalOutcomeProbabilityPercent*100
+    NeurologicalOutcomeProbability = model.predict(NewPatient)
+    if NeurologicalOutcomeProbability < 1:
+     NeurologicalOutcomeProbabilityAnswer = ': invalidity'
+    else:
+     NeurologicalOutcomeProbabilityAnswer = ': significant recovery'
+     NeurologicalOutcomeProbabilityPercent = model.predict_proba(NewPatient)
+     NeurologicalOutcomeProbabilityPercent = NeurologicalOutcomeProbabilityPercent[-1][1]
+     NeurologicalOutcomeProbabilityPercent = NeurologicalOutcomeProbabilityPercent*100
 
-features = ['Initial_GCS',
-   'Age',
-   'Hematoma_size_ml',
-   'Midline_shift_mm',
-   'Time_to_surgery_h',
-   'ICP_max_to_surgery',
-   'Concomitant_traumas']
+    features = ['Initial_GCS',
+    'Age',
+    'Hematoma_size_ml',
+    'Midline_shift_mm',
+    'Time_to_surgery_h',
+    'ICP_max_to_surgery',
+    'Concomitant_traumas']
   # Важливість ознак
-importances = model.feature_importances_
-feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
-feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
-feature_importance_dict = feature_importance_df.set_index('Feature')['Importance'].to_dict()
+    importances = model.feature_importances_
+    feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
+    feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+    feature_importance_dict = feature_importance_df.set_index('Feature')['Importance'].to_dict()
 
 
-return feature_importance_dict, NeurologicalOutcomeProbabilityAnswer, NeurologicalOutcomeProbabilityPercent
+    return feature_importance_dict, NeurologicalOutcomeProbabilityAnswer, NeurologicalOutcomeProbabilityPercent
 
 
 def Calculate_CGS(x1, x2, x3):
