@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import io
-
+import re
 import heapq
 
 import csv
@@ -21,6 +21,12 @@ from lifelines.utils import concordance_index
 from lifelines import CoxPHFitter
 from lifelines.utils import concordance_index as index
 
+Access_dic = {
+    'aramasht@gmail.com': '6719',
+    'test@test.com': 'test'
+}
+Access_dic_0 = str(list(Access_dic.keys())[0])
+Access_dic_1 = str(list(Access_dic.keys())[1])
 
 #Відкривання очей (E - Eye opening):
 #4 - спонтанне відкривання (spontaneous opening)
@@ -169,6 +175,24 @@ NewPatient = None
 ComplicationsProbability = None
 RandomForestComplicationsProbability = None
 
+
+## Functions ##
+# Password#
+def Check_Password(password):
+  for value in Access_dic.values():
+    if value == password:
+      return True
+result = Check_Password('6719')
+print(result)
+
+# Pattern is_valid_number(value) #
+def is_valid_number(value):
+    pattern = r'^\d+(\.\d+)?$'  # Matches integers like '4' and floats like '4.5'
+    return bool(re.match(pattern, str(value)))
+
+pattern = is_valid_number(4)
+
+#RandomForestComplications#
 def RandomForestComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
   # Завантаження даних у Pandas DataFrame
   #df = pd.read_csv(io.StringIO(csv_data))
@@ -344,6 +368,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 import numpy as np
 
+# Вибор між Трепанація з дренуванням, Краніотомія, Малоінвазивні втручання #
 # Дані
 Treatment_type_Dic = {
     1: 'Craniotomy',
@@ -448,19 +473,36 @@ def Calculate_CGS(x1, x2, x3):
   CGS = x1 + x2 + x3
   return CGS
 
+## Bot ##
 
-bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
+bot = telebot.TeleBot('8044522836:AAGsgb6d3r4CEGKhQMjD9Lk1wPN7pU-bNGk')
 
 @bot.message_handler(commands=['help', 'start'])
 
 def send_welcome(message):
-    msg = bot.send_message(message.chat.id, "\n\nHello, I'm the bot \"Ai Medical Assistant\"!")
+    msg = bot.send_message(message.chat.id, "\n\nHello, I'm the bot \"Ai Medical Assistant\" for the treatment of Craniotomy(Traumatic brain injury)!")
     chat_id = message.chat.id
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
     markup.add('Next')
-    msg = bot.reply_to(message, '\n\nI predict the consequences and effectiveness of treatment(Craniotomy to remove hematoma) for traumatic brain injury (concussion). \n\n To continue press Next', reply_markup=markup)
-    bot.register_next_step_handler(msg, process_Eye_Opening_step)
-#\n\nTo assess the level of consciousness (Glasgow Neurological Coma Scale), please enter the eye opening value.
+    msg = bot.reply_to(message, 'Please enter your password', reply_markup=markup)
+    bot.register_next_step_handler(msg, process_Password_step)
+
+def process_Password_step(message):
+  try:
+    chat_id = message.chat.id
+    Password_message = message.text
+    result = Check_Password(Password_message)
+    if result == True:
+      markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
+      markup.add('Next')
+      msg = bot.reply_to(message, 'You are welcome. Please press Next to continue', reply_markup=markup)
+      bot.register_next_step_handler(msg, process_Eye_Opening_step)
+    else:
+      print(Password_message)
+      msg = bot.reply_to(message, '❌ Incorrect password. Please try again.')
+      bot.register_next_step_handler(msg, process_Password_step)
+  except Exception as e:
+    bot.reply_to(message, 'oooops process_Password_step')
 
 def process_Eye_Opening_step(message):
     try:
@@ -717,32 +759,7 @@ def Recommendations_step(message):
       '\n\nPredicted effectiveness for each type of treatment: ' +
       '\nCraniotomy:  '  + str(CraniotomyRes) + ' %'+
       '\nTrepanation_with_drainage:  '  + str(Trepanation_with_drainageRes) + ' %'+
-      '\nMinimally_invasive_interventions:  '  + str(Minimally_invasive_interventionsRes) + ' %' +
-      '\n\n' +
-      '''Here are some key points that explain why craniotomy may be a better choice, even if trepanation with drainage appears to be less invasive:
-\nCause of intracranial pressure or lesion:
-Craniotomy: Provides greater access to the intracranial space. This is necessary when large hematomas, tumors, compression fractures, or active bleeding need to be removed.
-Trepanation with drainage: This is a less invasive procedure in which a small hole is made in the skull to insert a drain. It is suitable for draining fluid, such as subdural hematomas, or to reduce intracranial pressure when the underlying problem does not require extensive surgery.
-
-\nSize and location of the hematoma:
-\n
-Craniotomy: Recommended for large hematomas or hematomas in difficult locations where trepanation will not provide sufficient access to completely remove them.
-Trepanation with drainage: May be sufficient for small, well-localized hematomas.
-\nPresence of concomitant lesions:
-\n
-Craniotomy: If the patient has other serious brain lesions, such as compression fractures or the need to restore the integrity of the dura mater, craniotomy may be necessary to address these at the same time.
-Trepanation with drainage: Does not address other intracranial problems other than draining fluid.
-
-\nRisks of the procedures:
-\n
-Craniotomy: Although a more invasive procedure, in many cases it allows neurosurgeons to have better control over the situation, such as stopping bleeding.
-Trepanation with drainage: Carries risks of vascular injury or infection, although less than with craniotomy.
-
-\nPatient Condition:
-\n
-Craniotomy: May be necessary even if the patient is unstable if it is the only way to save his life (e.g., with a massive hematoma causing critical intracranial pressure).
-Trepanation with drainage: May be chosen for stable patients with less serious problems to minimize surgical trauma.
-It is important to emphasize that the decision between craniotomy and trepanation is made by the physician individually for each patient based on a careful evaluation of all clinical data, including imaging results (CT, MRI), the patient's general condition, and the cause of the lesion.'''
+      '\nMinimally_invasive_interventions:  '  + str(Minimally_invasive_interventionsRes) + ' %'
       )
       markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
       markup.add('Далі')
@@ -750,4 +767,6 @@ It is important to emphasize that the decision between craniotomy and trepanatio
       bot.register_next_step_handler(msg, send_welcome)
   except Exception as e:
     bot.reply_to(message, 'oooops Recommendations_step')
+
+#The end
 bot.infinity_polling()
