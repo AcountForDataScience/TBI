@@ -759,7 +759,9 @@ def Recommendations_step(message):
       '\n\nPredicted effectiveness for each type of treatment: ' +
       '\nCraniotomy:  '  + str(CraniotomyRes) + ' %'+
       '\nTrepanation_with_drainage:  '  + str(Trepanation_with_drainageRes) + ' %'+
-      '\nMinimally_invasive_interventions:  '  + str(Minimally_invasive_interventionsRes) + ' %'
+      '\nMinimally_invasive_interventions:  '  + str(Minimally_invasive_interventionsRes) + ' %' +
+      '\n\n Go to @MedAi_Stroke_bot(Decompressive Hemicraniectomy treatment)' +
+      '\n\n Go to @Thrombolysis_bot (Thrombolysis treatment)'
       )
       markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
       markup.add('Далі')
