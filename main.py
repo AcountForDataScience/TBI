@@ -1,19 +1,21 @@
-import os
 import telebot
+from telebot import types
 import numpy as np
 import pandas as pd
-import random
-from sklearn import linear_model
+import sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn import linear_model
 from scipy import stats
-from telebot import types
+import random
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import io
 import re
+
 import heapq
+plt.rcParams['figure.figsize'] = [10, 7]
 
 import csv
 
@@ -21,6 +23,7 @@ from lifelines.utils import concordance_index
 from lifelines import CoxPHFitter
 from lifelines.utils import concordance_index as index
 
+## Variables ##
 Access_dic = {
     'aramasht@gmail.com': '6719',
     'test@test.com': 'test'
@@ -175,7 +178,6 @@ NewPatient = None
 ComplicationsProbability = None
 RandomForestComplicationsProbability = None
 
-
 ## Functions ##
 # Password#
 def Check_Password(password):
@@ -190,10 +192,8 @@ def is_valid_number(value):
     pattern = r'^\d+(\.\d+)?$'  # Matches integers like '4' and floats like '4.5'
     return bool(re.match(pattern, str(value)))
 
-pattern = is_valid_number(4)
-
 #RandomForestComplications#
-def RandomForestComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
+def RandomForestComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7):
   # Завантаження даних у Pandas DataFrame
   #df = pd.read_csv(io.StringIO(csv_data))
 
@@ -201,7 +201,7 @@ def RandomForestComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
 
   # Визначення ознак (X) та цільової змінної (y)
   # Ми прогнозуємо стовпець 'Ускладнення'
-  X = df.drop(['ID', 'Survival','Complications'], axis=1)
+  X = df.drop(['ID', 'Survival','Complications', 'Neurological_outcome_scale'], axis=1)
   y = df['Complications']
 
   # Розділення даних на тренувальний та тестовий набори
@@ -223,8 +223,7 @@ def RandomForestComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
    'Midline_shift_mm': [x4],
    'Time_to_surgery_h': [x5],
    'ICP_max_to_surgery': [x6],
-   'Concomitant_traumas': [x7],
-   'Neurological_outcome_scale': [x8]
+   'Concomitant_traumas': [x7]
   })
 
   ComplicationsProbability = model.predict(NewPatient)
@@ -236,10 +235,9 @@ def RandomForestComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
   ComplicationsProbabilityPercent = ComplicationsProbabilityPercent[-1][1]
   ComplicationsProbabilityPercent = ComplicationsProbabilityPercent*100
   return ComplicationsProbabilityAnswer, ComplicationsProbabilityPercent
-# де 0 означає відсутність ускладнень, а 1 - наявність
 
-
-def LogisticRegressionComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
+# LogisticRegressionComplications #
+def LogisticRegressionComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7):
 #LogisticRegression для прогнозування Ускладнення
   # Завантаження даних у Pandas DataFrame
   #df = pd.read_csv(io.StringIO(csv_data))
@@ -248,7 +246,7 @@ def LogisticRegressionComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x
 
   # Визначення ознак (X) та цільової змінної (y)
   # Ми прогнозуємо стовпець 'Ускладнення'
-  X = df.drop(['ID', 'Survival','Complications'], axis=1)
+  X = df.drop(['ID', 'Survival','Complications', 'Neurological_outcome_scale'], axis=1)
   y = df['Complications']
 
   # Розділення даних на тренувальний та тестовий набори
@@ -262,7 +260,6 @@ def LogisticRegressionComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x
   # Прогнозування на тестовому наборі
   y_pred = model.predict(X_test)
 
-
   # Тепер ви можете використовувати навчену модель для прогнозування ускладнень для нових пацієнтів
   # Наприклад, для нового пацієнта з такими характеристиками:
   NewPatient = pd.DataFrame({
@@ -272,8 +269,7 @@ def LogisticRegressionComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x
    'Midline_shift_mm': [x4],
    'Time_to_surgery_h': [x5],
    'ICP_max_to_surgery': [x6],
-   'Concomitant_traumas': [x7],
-   'Neurological_outcome_scale': [x8]
+   'Concomitant_traumas': [x7]
   })
 
   #Resume_predicted_proba_lr_Cognitive_Disorders = Resume_predicted_proba_lr_Cognitive_Disorders[-1][1]
@@ -289,9 +285,8 @@ def LogisticRegressionComplicationsProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x
 
   return LogComplicationsProbabilityAnswer, LogComplicationsProbabilityPercent
 
-# де 0 означає відсутність ускладнень, а 1 - наявність
-
-def RandomForestSurvivalProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
+# Survival #
+def RandomForestSurvivalProbabilityFunc(x1, x2, x3, x4, x5, x6, x7):
 #RandomForestClassifier для прогнозування Ускладнення
   # Завантаження даних у Pandas DataFrame
   #df = pd.read_csv(io.StringIO(csv_data))
@@ -300,7 +295,7 @@ def RandomForestSurvivalProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
 
   # Визначення ознак (X) та цільової змінної (y)
   # Ми прогнозуємо стовпець 'Ускладнення'
-  X = df.drop(['ID', 'Survival','Complications'], axis=1)
+  X = df.drop(['ID', 'Survival','Complications', 'Neurological_outcome_scale'], axis=1)
   y = df['Survival']
 
   # Розділення даних на тренувальний та тестовий набори
@@ -313,8 +308,8 @@ def RandomForestSurvivalProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
 
   # Прогнозування на тестовому наборі
   y_pred = model.predict(X_test)
-  
-  # Тепер ви можете використовувати навчену модель для прогнозування ускладнень для нових пацієнтів
+
+   # Тепер ви можете використовувати навчену модель для прогнозування ускладнень для нових пацієнтів
   # Наприклад, для нового пацієнта з такими характеристиками:
   NewPatient = pd.DataFrame({
    'Initial_GCS': [x1],
@@ -324,10 +319,7 @@ def RandomForestSurvivalProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
    'Time_to_surgery_h': [x5],
    'ICP_max_to_surgery': [x6],
    'Concomitant_traumas': [x7],
-   'Neurological_outcome_scale': [x8]
   })
-
-  #Resume_predicted_proba_lr_Cognitive_Disorders = Resume_predicted_proba_lr_Cognitive_Disorders[-1][1]
 
   SurvivalProbability = model.predict(NewPatient)
   if SurvivalProbability < 1:
@@ -339,9 +331,7 @@ def RandomForestSurvivalProbabilityFunc(x1, x2, x3, x4, x5, x6, x7, x8):
   SurvivalProbabilityPercent = SurvivalProbabilityPercent*100
   return SurvivalProbabilityAnswer, SurvivalProbabilityPercent
 
-# де 0 означає відсутність ускладнень, а 1 - наявність
-
-
+# Neurological Outcome #
 def NeurologicalOutcomeFunc(x1, x2, x3, x4, x5, x6, x7):
   df = pd.read_csv('BrainInjuryComplication.csv')
 
@@ -363,12 +353,55 @@ def NeurologicalOutcomeFunc(x1, x2, x3, x4, x5, x6, x7):
 
   y_pred = model.predict(X_test)
 
-  import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-import numpy as np
+  # Оцінка моделі
+  accuracy = accuracy_score(y_test, y_pred)
+  print(f"Точність моделі: {accuracy:.2f}")
 
-# Вибор між Трепанація з дренуванням, Краніотомія, Малоінвазивні втручання #
+  print("\nЗвіт про класифікацію:")
+  print(classification_report(y_test, y_pred))
+
+  print("\nМатриця плутанини:")
+  print(confusion_matrix(y_test, y_pred))
+
+  # Тепер ви можете використовувати навчену модель для прогнозування ускладнень для нових пацієнтів
+  # Наприклад, для нового пацієнта з такими характеристиками:
+  NewPatient = pd.DataFrame({
+   'Initial_GCS': [x1],
+   'Age': [x2],
+   'Hematoma_size_ml': [x3],
+   'Midline_shift_mm': [x4],
+   'Time_to_surgery_h': [x5],
+   'ICP_max_to_surgery': [x6],
+   'Concomitant_traumas': [x7]
+  })
+
+  #Resume_predicted_proba_lr_Cognitive_Disorders = Resume_predicted_proba_lr_Cognitive_Disorders[-1][1]
+
+  NeurologicalOutcomeProbability = model.predict(NewPatient)
+  if NeurologicalOutcomeProbability < 1:
+    NeurologicalOutcomeProbabilityAnswer = ': invalidity'
+  else:
+    NeurologicalOutcomeProbabilityAnswer = ': significant recovery'
+  NeurologicalOutcomeProbabilityPercent = model.predict_proba(NewPatient)
+  NeurologicalOutcomeProbabilityPercent = NeurologicalOutcomeProbabilityPercent[-1][1]
+  NeurologicalOutcomeProbabilityPercent = NeurologicalOutcomeProbabilityPercent*100
+
+  features = ['Initial_GCS',
+   'Age',
+   'Hematoma_size_ml',
+   'Midline_shift_mm',
+   'Time_to_surgery_h',
+   'ICP_max_to_surgery',
+   'Concomitant_traumas']
+  # Важливість ознак
+  importances = model.feature_importances_
+  feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
+  feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+  feature_importance_dict = feature_importance_df.set_index('Feature')['Importance'].to_dict()
+
+  return feature_importance_dict, NeurologicalOutcomeProbabilityAnswer, NeurologicalOutcomeProbabilityPercent
+
+# Вибор між Трепанація з дренуванням, Краніотомія, Малоінвазивні втручання #    
 # Дані
 Treatment_type_Dic = {
     1: 'Craniotomy',
@@ -428,47 +461,7 @@ def recommend_best_treatment(patient_data: dict):
     #return f"\n✅ Рекомендоване лікування: {best_treatment} (найвища ефективність)"
     return best_treatment, effectiveness_results_str_dic
 
-
-  # Тепер ви можете використовувати навчену модель для прогнозування ускладнень для нових пацієнтів
-  # Наприклад, для нового пацієнта з такими характеристиками:
-    NewPatient = pd.DataFrame({
-    'Initial_GCS': [x1],
-    'Age': [x2],
-    'Hematoma_size_ml': [x3],
-    'Midline_shift_mm': [x4],
-    'Time_to_surgery_h': [x5],
-    'ICP_max_to_surgery': [x6],
-    'Concomitant_traumas': [x7]
-    })
-
-  #Resume_predicted_proba_lr_Cognitive_Disorders = Resume_predicted_proba_lr_Cognitive_Disorders[-1][1]
-
-    NeurologicalOutcomeProbability = model.predict(NewPatient)
-    if NeurologicalOutcomeProbability < 1:
-     NeurologicalOutcomeProbabilityAnswer = ': invalidity'
-    else:
-     NeurologicalOutcomeProbabilityAnswer = ': significant recovery'
-     NeurologicalOutcomeProbabilityPercent = model.predict_proba(NewPatient)
-     NeurologicalOutcomeProbabilityPercent = NeurologicalOutcomeProbabilityPercent[-1][1]
-     NeurologicalOutcomeProbabilityPercent = NeurologicalOutcomeProbabilityPercent*100
-
-    features = ['Initial_GCS',
-    'Age',
-    'Hematoma_size_ml',
-    'Midline_shift_mm',
-    'Time_to_surgery_h',
-    'ICP_max_to_surgery',
-    'Concomitant_traumas']
-  # Важливість ознак
-    importances = model.feature_importances_
-    feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
-    feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
-    feature_importance_dict = feature_importance_df.set_index('Feature')['Importance'].to_dict()
-
-
-    return feature_importance_dict, NeurologicalOutcomeProbabilityAnswer, NeurologicalOutcomeProbabilityPercent
-
-
+# CGS #
 def Calculate_CGS(x1, x2, x3):
   CGS = x1 + x2 + x3
   return CGS
@@ -726,7 +719,7 @@ def predict_craniotomy_complication_step(message):
       '\n' +
       '______________________________________' +
 
-      '\n\n - Probability of neurological outcome (significant recovery vs. disability) ' + str(NeurologicalOutcomeProbabilityAnswer)+
+      '\n\n - Probability of neurological outcome (significant recovery vs. disability) ' + str(NeurologicalOutcomeProbabilityAnswer) +
       '\n - Probability of neurological outcome (significant recovery vs. disability) in percent ' + str(NeurologicalOutcomeProbabilityPercent) + ' %'
       '\n' +
 
