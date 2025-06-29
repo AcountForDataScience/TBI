@@ -643,7 +643,7 @@ def process_ICP_max_to_surgery_step(message):
       bot.register_next_step_handler(msg, process_ICP_max_to_surgery_step)
     else:
       markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
-      markup.add(YesNo_dict_0, YesNo_dict_1)
+      markup.add(YesNo_dict_1)
       msg = bot.reply_to(message, 'Presence of concomitant injuries (other injuries that a patient has in addition to the primary condition)', reply_markup=markup)
       bot.register_next_step_handler(msg, process_Concomitant_traumas_step)
   except Exception as e:
@@ -656,41 +656,39 @@ def process_Concomitant_traumas_step(message):
     Concomitant_traumas_message = message.text
     if (Concomitant_traumas_message == YesNo_dict_0) or (Concomitant_traumas_message == YesNo_dict_1):
       markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
-      markup.add(GOS_Dic_0, GOS_Dic_1, GOS_Dic_2, GOS_Dic_3, GOS_Dic_4)
-      msg = bot.reply_to(message, 'Glasgow Neurological outcome scale (Glasgow Outcome Scale: Good Recovery, Moderate Disability, Severe Disability, Vegetative State, Death)', reply_markup=markup)
+      markup.add(YesNo_dict_1)
+      msg = bot.reply_to(message, 'Predict the consequences, survival and Neurological_outcome?', reply_markup=markup)
       global Concomitant_traumas
       Concomitant_traumas = YesNo_dict[Concomitant_traumas_message]
-      bot.register_next_step_handler(msg, process_Neurological_outcome_scale_step)
+      bot.register_next_step_handler(msg, predict_craniotomy_complication_step)
   except Exception as e:
     bot.reply_to(message, 'oooops process_Concomitant_traumas_step')
 
 #def process_Survival_step(message):
 #  try:
-#    chat_id = message.chat.id
-#    global Survival
-#    Survival = message.text
-#    if not Survival.isdigit():
-#      msg = bot.reply_to(message, 'Survival має бути цифрою. Будь ласка, введіть вік')
-#      bot.register_next_step_handler(msg, process_Survival_step)
-#    else:
+#    chat_id = message.chat.id   
+#    Survival_message = message.text
+#    if Survival_message == YesNo_dict_1:
+#      global Survival
+#      Survival = 
 #      msg = bot.reply_to(message, 'Neurilogical')
 #      bot.register_next_step_handler(msg, process_Neurological_outcome_scale_step)
 #  except Exception as e:
-#    bot.reply_to(message, 'oooops process_Survival_step')
+#   bot.reply_to(message, 'oooops process_Survival_step')
 
-def process_Neurological_outcome_scale_step(message):
-  try:
-    chat_id = message.chat.id
-    global Neurological_outcome_scale
-    Neurological_outcome_scale_message = message.text
-    Neurological_outcome_scale = Neurological_Outcome_Scale_Dic[Neurological_outcome_scale_message]
-    if (Neurological_outcome_scale_message == GOS_Dic_0) or (Neurological_outcome_scale_message == GOS_Dic_1) or (Neurological_outcome_scale_message == GOS_Dic_2) or (Neurological_outcome_scale_message == GOS_Dic_3) or (Neurological_outcome_scale_message == GOS_Dic_4):
-      markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
-      markup.add(YesNo_dict_0, YesNo_dict_1)
-      msg = bot.reply_to(message, 'Predict the consequences?', reply_markup=markup)
-      bot.register_next_step_handler(msg, predict_craniotomy_complication_step)
-  except Exception as e:
-    bot.reply_to(message, 'oooops process_Survival_step')
+#def process_Neurological_outcome_scale_step(message):
+#  try:
+#    chat_id = message.chat.id
+#    global Neurological_outcome_scale
+#    Neurological_outcome_scale_message = message.text
+#    Neurological_outcome_scale = Neurological_Outcome_Scale_Dic[Neurological_outcome_scale_message]
+#    if (Neurological_outcome_scale_message == GOS_Dic_0) or (Neurological_outcome_scale_message == GOS_Dic_1) or (Neurological_outcome_scale_message == GOS_Dic_2) or (Neurological_outcome_scale_message == GOS_Dic_3) or (Neurological_outcome_scale_message == GOS_Dic_4):
+#      markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
+#      markup.add(YesNo_dict_0, YesNo_dict_1)
+#      msg = bot.reply_to(message, 'Predict the consequences and survival?', reply_markup=markup)
+#      bot.register_next_step_handler(msg, predict_craniotomy_complication_step)
+#  except Exception as e:
+#    bot.reply_to(message, 'oooops process_Survival_step')
 
 def predict_craniotomy_complication_step(message):
   try:
@@ -698,9 +696,9 @@ def predict_craniotomy_complication_step(message):
     Predict_Complication = message.text
     if (Predict_Complication == YesNo_dict_0) or (Predict_Complication == YesNo_dict_1):
 
-      ComplicationsProbabilityAnswer, ComplicationsProbabilityPercent= RandomForestComplicationsProbabilityFunc(Initial_GCS, Age, Hematoma_size_ml, Midline_shift_mm, Time_to_surgery_h, ICP_max_to_surgery, Concomitant_traumas, Neurological_outcome_scale)
-      LogComplicationsProbabilityAnswer, LogComplicationsProbabilityPercent = LogisticRegressionComplicationsProbabilityFunc(Initial_GCS, Age, Hematoma_size_ml, Midline_shift_mm, Time_to_surgery_h, ICP_max_to_surgery, Concomitant_traumas, Neurological_outcome_scale)
-      SurvivalProbabilityAnswer, SurvivalProbabilityPercent = RandomForestSurvivalProbabilityFunc(Initial_GCS, Age, Hematoma_size_ml, Midline_shift_mm, Time_to_surgery_h, ICP_max_to_surgery, Concomitant_traumas, Neurological_outcome_scale)
+      ComplicationsProbabilityAnswer, ComplicationsProbabilityPercent= RandomForestComplicationsProbabilityFunc(Initial_GCS, Age, Hematoma_size_ml, Midline_shift_mm, Time_to_surgery_h, ICP_max_to_surgery, Concomitant_traumas)
+      LogComplicationsProbabilityAnswer, LogComplicationsProbabilityPercent = LogisticRegressionComplicationsProbabilityFunc(Initial_GCS, Age, Hematoma_size_ml, Midline_shift_mm, Time_to_surgery_h, ICP_max_to_surgery, Concomitant_traumas)
+      SurvivalProbabilityAnswer, SurvivalProbabilityPercent = RandomForestSurvivalProbabilityFunc(Initial_GCS, Age, Hematoma_size_ml, Midline_shift_mm, Time_to_surgery_h, ICP_max_to_surgery, Concomitant_traumas)
       feature_importance_dict, NeurologicalOutcomeProbabilityAnswer, NeurologicalOutcomeProbabilityPercent  = NeurologicalOutcomeFunc(Initial_GCS, Age, Hematoma_size_ml, Midline_shift_mm, Time_to_surgery_h, ICP_max_to_surgery, Concomitant_traumas)
 
       bot.send_message(chat_id,
@@ -719,7 +717,7 @@ def predict_craniotomy_complication_step(message):
       '\n' +
       '______________________________________' +
 
-      '\n\n - Probability of neurological outcome (significant recovery vs. disability) ' + str(NeurologicalOutcomeProbabilityAnswer) +
+      '\n\n - Probability of neurological outcome (significant recovery vs. disability) ' + str(NeurologicalOutcomeProbabilityAnswer)+
       '\n - Probability of neurological outcome (significant recovery vs. disability) in percent ' + str(NeurologicalOutcomeProbabilityPercent) + ' %'
       '\n' +
 
@@ -736,6 +734,8 @@ def predict_craniotomy_complication_step(message):
   except Exception as e:
     bot.reply_to(message, 'oooops predict_craniotomy_complication_step')
 
+
+
 def Recommendations_step(message):
   try:
     chat_id = message.chat.id
@@ -748,13 +748,11 @@ def Recommendations_step(message):
       Trepanation_with_drainageRes = effectiveness_results_str_dic['Trepanation_with_drainage']
       Minimally_invasive_interventionsRes = effectiveness_results_str_dic['Minimally_invasive_interventions']
       bot.send_message(chat_id,
-      '\n\n|Recommended treatment: ' + str(best_treatment) + ' (highest efficiency)' +
+      '\n\n - Recommended treatment: \n' + str(best_treatment) + ' (highest efficiency)' +
       '\n\nPredicted effectiveness for each type of treatment: ' +
       '\nCraniotomy:  '  + str(CraniotomyRes) + ' %'+
       '\nTrepanation_with_drainage:  '  + str(Trepanation_with_drainageRes) + ' %'+
-      '\nMinimally_invasive_interventions:  '  + str(Minimally_invasive_interventionsRes) + ' %' +
-      '\n\n Go to @MedAi_Stroke_bot(Decompressive Hemicraniectomy treatment)' +
-      '\n\n Go to @Thrombolysis_bot (Thrombolysis treatment)'
+      '\nMinimally_invasive_interventions:  '  + str(Minimally_invasive_interventionsRes) + ' %'
       )
       markup = types.ReplyKeyboardMarkup(one_time_keyboard=False)
       markup.add('Далі')
